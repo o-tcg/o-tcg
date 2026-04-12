@@ -134,3 +134,16 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 10px;
+}
+.perspective-1000 {
+  perspective: 1000px;
+}
