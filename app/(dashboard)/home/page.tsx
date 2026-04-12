@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getCookie } from "cookies-next"
+import { getCookie, deleteCookie } from "cookies-next"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { XCircle, InfoIcon } from "lucide-react"
 import { Button } from "components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "components/ui/alert"
@@ -18,6 +19,12 @@ import {
 } from "components/ui/dropdown-menu"
 
 export default function Page() {
+  const router = useRouter()
+  const handleLogout = () => {
+    deleteCookie("osu_user")
+    setUser(null)
+    router.push("/")
+  }
   const [user, setUser] = useState<{
     username: string
     avatar_url: string
@@ -89,7 +96,10 @@ export default function Page() {
                 <DropdownMenuItem>Collection</DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer font-medium text-red-500">
+              <DropdownMenuItem
+                className="cursor-pointer font-medium text-red-500"
+                onClick={handleLogout}
+              >
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
