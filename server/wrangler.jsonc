@@ -1,14 +1,21 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "osu-tcg-api",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-04-12",
-  "vars": {
-    "OSU_CLIENT_ID": "51563",
-    "REDIRECT_URI": "http://localhost:8787/auth/callback",
-    "FRONTEND_URL": "http://localhost:3000",
-  },
-  "observability": {
-    "enabled": true,
-  },
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "osu-tcg-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-04-12",
+	"vars": {
+		"OSU_CLIENT_ID": "51563",
+		"REDIRECT_URI": "http://localhost:8787/auth/callback",
+		"FRONTEND_URL": "http://localhost:3000",
+	},
+	"observability": {
+		"enabled": true,
+	},
+	"d1_databases": [
+		{
+			"binding": "osu_tcg_db",
+			"database_name": "osu-tcg-db",
+			"database_id": "ab3ed3ab-6105-410c-a88c-73bd6b4fa3df"
+		}
+	],
 }

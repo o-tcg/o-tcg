@@ -1,18 +1,19 @@
 import { Hono } from "hono"
 import { setCookie } from "hono/cookie"
 import { cors } from "hono/cors"
+import { sign } from "hono/jwt"
 
-// Define the shape of your environment variables
 type Bindings = {
   OSU_CLIENT_ID: string
   OSU_CLIENT_SECRET: string
   REDIRECT_URI: string
   FRONTEND_URL: string
+  osu_tcg_db: D1Database
+  JWT_SECRET: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-// Allow your Next.js frontend to talk to this API
 app.use(
   "*",
   cors({
@@ -21,20 +22,16 @@ app.use(
   })
 )
 
-// STEP 1: Send user to osu!
 app.get("/auth/osu", (c) => {
   const url = `https://osu.ppy.sh/oauth/authorize?client_id=${c.env.OSU_CLIENT_ID}&redirect_uri=${c.env.REDIRECT_URI}&response_type=code&scope=identify`
   return c.redirect(url)
 })
 
-// STEP 2: osu! sends them back here with a ?code=...
 app.get("/auth/callback", async (c) => {
   const code = c.req.query("code")
+  if (!code) return c.text("Auth failed", 400)
 
-  if (!code) return c.text("No code provided", 400)
-
-  // Exchange code for Access Token
-  const response = await fetch("https://osu.ppy.sh/oauth/token", {
+  const tokenResponse = await fetch("https://osu.ppy.sh/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -46,31 +43,55 @@ app.get("/auth/callback", async (c) => {
     }),
   })
 
-  const tokenData: any = await response.json()
+  const tokens: any = await tokenResponse.json()
 
-  // Fetch user profile using the token
-  const userRes = await fetch("https://osu.ppy.sh/api/v2/me", {
-    headers: { Authorization: `Bearer ${tokenData.access_token}` },
+  const userResponse = await fetch("https://osu.ppy.sh/api/v2/me", {
+    headers: { Authorization: `Bearer ${tokens.access_token}` },
   })
+  const osuUser: any = await userResponse.json()
 
-  const userData: any = await userRes.json()
+  await c.env.osu_tcg_db
+    .prepare(
+      `
+    INSERT INTO users (id, username, avatar_url, access_token)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+      username = excluded.username,
+      avatar_url = excluded.avatar_url,
+      access_token = excluded.access_token
+  `
+    )
+    .bind(
+      String(osuUser.id),
+      osuUser.username,
+      osuUser.avatar_url,
+      tokens.access_token
+    )
+    .run()
 
-  // Save minimal info in a cookie (normally you'd use a JWT here)
+  const payload = {
+    id: String(osuUser.id),
+    username: osuUser.username,
+    avatar_url: osuUser.avatar_url,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+  }
+
+  const token = await sign(payload, c.env.JWT_SECRET || "top-secret-key")
+
   setCookie(
     c,
     "osu_user",
     JSON.stringify({
-      username: userData.username,
-      avatar_url: userData.avatar_url,
+      username: osuUser.username,
+      avatar_url: osuUser.avatar_url,
     }),
     {
-      httpOnly: false, // Set to false so Next.js can read it for now
-      maxAge: 60 * 60 * 24, // 1 day
       path: "/",
+      maxAge: 60 * 60 * 24,
+      httpOnly: false,
     }
   )
 
-  // Send them home!
   return c.redirect(`${c.env.FRONTEND_URL}/home`)
 })
 
