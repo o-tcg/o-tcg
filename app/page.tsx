@@ -1,18 +1,34 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "components/ui/alert"
+import { InfoIcon } from "lucide-react" // Optional: for a nice icon
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
+    <div className="flex min-h-svh flex-col items-center gap-12 p-6">
+      <Alert className="max-w-2xl border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950/20">
+        <InfoIcon className="h-4 w-4" />
+        <AlertTitle>Heads up!</AlertTitle>
+        <AlertDescription>
+          This website is still in <strong>alpha version</strong>. Things might
+          break!
+        </AlertDescription>
+      </Alert>
+
+      <div className="mt-10 flex flex-col items-center justify-center gap-6 text-center">
+        <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl">
+          The Next Big osu! Game
+        </h1>
+        <p className="max-w-[600px] text-lg text-muted-foreground">
+          Collect cards, trade them, and use them in fierce battles against
+          other players !
+        </p>
+
+        <Button
+          size="lg"
+          className="rounded-xl bg-[#ff66aa] px-8 py-6 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-[#ff66aa]/90"
+        >
+          Connect with osu!
+        </Button>
       </div>
     </div>
   )
