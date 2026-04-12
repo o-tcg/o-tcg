@@ -5,14 +5,12 @@ export interface PlayerCard {
   playerId: string
   name: string
   rarity: Rarity
-  // Physical/Mental Stats
   baseStats: {
     ppRank: number
     nerves: number // 0-100
     aim: number // 0-100
     tapping: number // 0-100
   }
-  // Tournament Slot Proficiencies (Score 0 - 999,999)
   slots: {
     nm: number[] // [nm1, nm2, nm3, nm4, nm5, nm6]
     hd: number[] // [hd1, hd2, hd3, hd4]
