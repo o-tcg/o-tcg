@@ -1,6 +1,6 @@
 import { Button } from "components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "components/ui/alert"
-import { InfoIcon } from "lucide-react" // Optional: for a nice icon
+import { InfoIcon } from "lucide-react"
 
 export default function Page() {
   return (
@@ -18,16 +18,13 @@ export default function Page() {
         <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl">
           The Next Big osu! Game
         </h1>
-        <p className="max-w-[600px] text-lg text-muted-foreground">
+        <p className="max-w-150 text-lg text-muted-foreground">
           Collect cards, trade them, and use them in fierce battles against
           other players !
         </p>
 
-        <Button
-          size="lg"
-          className="rounded-xl bg-[#ff66aa] px-8 py-6 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-[#ff66aa]/90"
-        >
-          Connect with osu!
+        <Button size="lg" className="rounded-xl bg-[#ff66aa] ...">
+          <a href="http://localhost:8787/auth/osu">Connect with osu!</a>
         </Button>
       </div>
     </div>
