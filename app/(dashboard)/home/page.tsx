@@ -28,17 +28,32 @@ import { PlayerCardUI } from "components/player-card-ui"
 import { DetailedCardView } from "components/detailed-card-view"
 import { GAME_DATA } from "server/src/gameData"
 
+// --- TYPES ---
+interface User {
+  id: string
+  username: string
+  avatar_url: string
+  pp: number
+}
+
+interface InventoryItem {
+  id: string
+  card_id?: string
+  is_sealed: number
+  pack_type?: string
+  pack_weight?: number
+  security_score?: number
+  is_graded?: boolean
+  grade_value?: number | string | null // Added null here for safety
+}
 export default function Page() {
   const router = useRouter()
-  const [selectedPack, setSelectedPack] = useState<any>(null)
-  const [selectedCard, setSelectedCard] = useState<any>(null)
-  const [user, setUser] = useState<{
-    id: string
-    username: string
-    avatar_url: string
-    pp: number
-  } | null>(null)
-  const [inventory, setInventory] = useState<any[]>([])
+
+  // States with proper typing instead of 'any'
+  const [selectedPack, setSelectedPack] = useState<InventoryItem | null>(null)
+  const [selectedCard, setSelectedCard] = useState<any>(null) // DetailedCardView usually takes a combined type
+  const [user, setUser] = useState<User | null>(null)
+  const [inventory, setInventory] = useState<InventoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const refreshInventory = () => {
@@ -48,7 +63,6 @@ export default function Page() {
       )
         .then((res) => res.json())
         .then((data) => {
-          // FIX: Normalize D1 result sets
           const items = data.results || data || []
           setInventory(Array.isArray(items) ? items : [])
         })
@@ -60,14 +74,13 @@ export default function Page() {
     const session = getCookie("osu_user")
     if (session) {
       try {
-        const userData = JSON.parse(session as string)
+        const userData = JSON.parse(session as string) as User
         setUser(userData)
         fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/inventory?userId=${userData.id}`
         )
           .then((res) => res.json())
           .then((data) => {
-            // FIX: Normalize D1 result sets
             const items = data.results || data || []
             setInventory(Array.isArray(items) ? items : [])
           })
@@ -104,16 +117,14 @@ export default function Page() {
     )
   }
 
-  // Filter logic remains the same
-  const inventoryArray = Array.isArray(inventory) ? inventory : []
-  const packs = inventoryArray.filter((item: any) => item.is_sealed === 1)
-  const cards = inventoryArray.filter(
-    (item: any) => item.is_sealed === 0 && (item.card_id || item.id)
+  // Filter logic with Typed items
+  const packs = inventory.filter((item) => item.is_sealed === 1)
+  const cards = inventory.filter(
+    (item) => item.is_sealed === 0 && (item.card_id || item.id)
   )
 
   return (
     <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col items-stretch gap-8 p-6">
-      {/* Navbar */}
       <nav className="flex w-full items-center justify-between">
         <div className="text-2xl font-bold tracking-tighter text-[#ff66aa]">
           o!tcg
@@ -200,7 +211,7 @@ export default function Page() {
                       Trust Score
                     </p>
                     <p className="text-sm font-black text-green-500">
-                      {Math.round(pack.security_score * 100)}%
+                      {Math.round((pack.security_score || 0) * 100)}%
                     </p>
                   </div>
                 </div>
@@ -218,23 +229,16 @@ export default function Page() {
                 </CardHeader>
               </Card>
             ))}
-            {packs.length === 0 && (
-              <div className="col-span-full rounded-3xl border-2 border-dashed border-zinc-800 py-20 text-center text-white opacity-50">
-                No packs found. Gain medals to earn more!
-              </div>
-            )}
           </div>
         </TabsContent>
 
         <TabsContent value="cards" className="mt-8">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {cards.map((item) => {
-              // FIX: Robust ID matching (handles card_id or id)
               const cardId = item.card_id || item.id
               const playerInfo = GAME_DATA.sets.genesis.cards.find(
                 (c) => String(c.id) === String(cardId)
               )
-
               if (!playerInfo) return null
 
               return (
@@ -245,21 +249,15 @@ export default function Page() {
                 >
                   <PlayerCardUI
                     player={playerInfo}
-                    grade={item.is_graded ? item.grade_value : null}
+                    grade={item.is_graded ? Number(item.grade_value) : null}
                   />
                 </div>
               )
             })}
-            {cards.length === 0 && (
-              <div className="col-span-full rounded-3xl border-2 border-dashed border-zinc-800 py-20 text-center text-white opacity-50">
-                Your collection is empty. Open a pack to reveal player cards!
-              </div>
-            )}
           </div>
         </TabsContent>
       </Tabs>
 
-      {/* PACK OPENER DIALOG */}
       <Dialog open={!!selectedPack} onOpenChange={() => setSelectedPack(null)}>
         <DialogContent className="max-w-[95vw] overflow-hidden rounded-[2.5rem] border-zinc-800 bg-[#050505] p-0 outline-none sm:max-w-2xl">
           {selectedPack && (
@@ -275,7 +273,6 @@ export default function Page() {
         </DialogContent>
       </Dialog>
 
-      {/* DETAILED CARD VIEW */}
       <Dialog open={!!selectedCard} onOpenChange={() => setSelectedCard(null)}>
         <DialogContent className="max-w-[95vw] overflow-hidden rounded-[2.5rem] border-zinc-800 bg-zinc-950 p-0 outline-none lg:max-w-[1050px]">
           <div className="flex min-h-[500px] w-full items-center justify-center">

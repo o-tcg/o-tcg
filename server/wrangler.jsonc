@@ -5,7 +5,7 @@
   "compatibility_date": "2026-04-12",
   "vars": {
     "OSU_CLIENT_ID": "51563",
-    "REDIRECT_URI": "http://localhost:8787/auth/callback",
+    "REDIRECT_URI": "https://o-tcg.kqma.workers.dev/auth/callback",
     "FRONTEND_URL": "http://localhost:3000",
   },
   "observability": {
