@@ -26,7 +26,7 @@ import { Dialog, DialogContent } from "components/ui/dialog"
 import { PackOpener } from "components/pack-opener"
 import { PlayerCardUI } from "components/player-card-ui"
 import { DetailedCardView } from "components/detailed-card-view"
-import { GAME_DATA } from "../../../server/src/gameData"
+import { GAME_DATA } from "server/src/gameData"
 
 export default function Page() {
   const router = useRouter()
