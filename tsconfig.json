@@ -30,5 +30,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
+  "types": ["@cloudflare/workers-types"],
   "exclude": ["node_modules"]
 }

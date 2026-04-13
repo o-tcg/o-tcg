@@ -3,7 +3,7 @@ import { setCookie } from "hono/cookie"
 import { cors } from "hono/cors"
 import { sign } from "hono/jwt"
 import { GAME_DATA, Rarity } from "./gameData"
-
+type D1Database = any
 type Bindings = {
   OSU_CLIENT_ID: string
   OSU_CLIENT_SECRET: string
