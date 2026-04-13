@@ -132,7 +132,7 @@ export function DetailedCardView({ card }: { card: any }) {
         {/* Action Buttons - Fixed at bottom of column */}
         <div className="mt-12 flex shrink-0 gap-4 pb-4">
           <Button className="h-14 flex-1 rounded-full bg-[#ff66aa] text-xl font-black tracking-tighter text-black uppercase italic transition-transform hover:bg-[#ff88bb] active:scale-95">
-            Lock Player
+            Grade Player
           </Button>
           <Button
             variant="outline"
